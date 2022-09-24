@@ -76,12 +76,12 @@ student = dict(
     neck=dict(
         type='lka_FPN',
         in_channels=[64, 128, 256, 512],
-        out_channels=256,
+        out_channels=64,
         num_outs=5),
     rpn_head=dict(
         type='RPNHead',
-        in_channels=256,
-        feat_channels=256,
+        in_channels=64,
+        feat_channels=64,
         anchor_generator=dict(
             type='AnchorGenerator',
             scales=[2],  # [8]
@@ -99,12 +99,12 @@ student = dict(
         bbox_roi_extractor=dict(
             type='SingleRoIExtractor',
             roi_layer=dict(type='RoIAlign', output_size=7, sampling_ratio=0),
-            out_channels=256,
+            out_channels=64,
             featmap_strides=[4, 8, 16, 32]),
         bbox_head=dict(
             type='Shared2FCBBoxHead',
-            in_channels=256,
-            fc_out_channels=1024,
+            in_channels=64,
+            fc_out_channels=256,
             roi_feat_size=7,
             num_classes=10,  # 80
             bbox_coder=dict(
@@ -120,7 +120,7 @@ student = dict(
 )
 
 # checkpoint = 'https://download.openmmlab.com/mmdetection/v2.0/gfl/gfl_r101_fpn_mstrain_2x_coco/gfl_r101_fpn_mstrain_2x_coco_20200629_200126-dd12f847.pth'  # noqa: E501
-checkpoint = r'/home/group5/lzj/VisDrone_cache/lka_fpn/faster_rcnn_r50_lka_fpn_1x_VisDrone640/slice_640x640_lr0.02_1x_1g/epoch_12.pth'
+checkpoint = r'/home/group5/lzj/VisDrone_cache/lka_fpn/faster_rcnn_r50_lka_fpn_outch64_1x_VisDrone640/slice_640x640_lr0.08_1x_4g/epoch_12.pth'
 
 teacher = dict(
     type='mmdet.FasterRCNN',
@@ -139,12 +139,12 @@ teacher = dict(
     neck=dict(
         type='lka_FPN',
         in_channels=[256, 512, 1024, 2048],
-        out_channels=256,
+        out_channels=64,
         num_outs=5),
     rpn_head=dict(
         type='RPNHead',
-        in_channels=256,
-        feat_channels=256,
+        in_channels=64,
+        feat_channels=64,
         anchor_generator=dict(
             type='AnchorGenerator',
             scales=[2],  # [8]
@@ -162,12 +162,12 @@ teacher = dict(
         bbox_roi_extractor=dict(
             type='SingleRoIExtractor',
             roi_layer=dict(type='RoIAlign', output_size=7, sampling_ratio=0),
-            out_channels=256,
+            out_channels=64,
             featmap_strides=[4, 8, 16, 32]),
         bbox_head=dict(
             type='Shared2FCBBoxHead',
-            in_channels=256,
-            fc_out_channels=1024,
+            in_channels=64,
+            fc_out_channels=256,
             roi_feat_size=7,
             num_classes=10,  # 80
             bbox_coder=dict(
@@ -236,7 +236,52 @@ algorithm = dict(
                         tau=1,
                         loss_weight=5,
                     )
-                ])
+                ]),
+            # dict(
+            #     student_module='backbone.res_layers.layer1.conv',
+            #     teacher_module='backbone.res_layers.layer1.conv',
+            #     losses=[
+            #         dict(
+            #             type='ChannelWiseDivergence',
+            #             name='loss_cwd_fpn_1',
+            #             tau=1,
+            #             loss_weight=5,
+            #         )
+            #     ]),
+            # dict(
+            #     student_module='neck.fpn_convs.1.conv',
+            #     teacher_module='neck.fpn_convs.1.conv',
+            #     losses=[
+            #         dict(
+            #             type='ChannelWiseDivergence',
+            #             name='loss_cwd_fpn_1',
+            #             tau=1,
+            #             loss_weight=5,
+            #         )
+            #     ]),
+            # dict(
+            #     student_module='neck.fpn_convs.1.conv',
+            #     teacher_module='neck.fpn_convs.1.conv',
+            #     losses=[
+            #         dict(
+            #             type='ChannelWiseDivergence',
+            #             name='loss_cwd_fpn_1',
+            #             tau=1,
+            #             loss_weight=5,
+            #         )
+            #     ]),
+            # dict(
+            #     student_module='neck.fpn_convs.1.conv',
+            #     teacher_module='neck.fpn_convs.1.conv',
+            #     losses=[
+            #         dict(
+            #             type='ChannelWiseDivergence',
+            #             name='loss_cwd_fpn_1',
+            #             tau=1,
+            #             loss_weight=5,
+            #         )
+            #     ]),
+
         ]),
 )
 evaluation = dict(interval=1, metric='bbox',save_best='bbox_mAP')
